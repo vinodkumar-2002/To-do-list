@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>To Do</title>
+    <style>
+        body {
+            padding: 20px;
+            background: linear-gradient(to right, #3498db, #8e44ad);
+            /* Blue to Purple gradient */
+            color: white;
+            /* Set text color to white for better visibility */
+        }
+
+        .container {
+
+            /* Semi-transparent white background for better readability */
+            /* padding: 20px; */
+            border-radius: 10px;
+
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            /* width: 90%; */
+
+        }
+
+
+        .tlist {
+            background-color: rgb(248, 250, 246);
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            padding-left: 5%;
+            padding-right: 5%;
+            margin-top: 8px;
+            /* margin-left: 30%; */
+            border-radius: 50px;
+            background: #e0e0e0;
+            box-shadow: 20px 20px 60px #5a5a5a,
+                -20px -20px 60px #ffffff;
+        }
+
+        /* Animation for the title */
+        .falling-letters {
+            display: inline-block;
+            position: relative;
+            animation: fall 1s ease-out forwards;
+            transform-origin: top;
+            opacity: 0;
+            -webkit-box-reflect: below -20px linear-gradient(transparent, rgba(236, 231, 231, 0.2));
+        }
+
+        @media (max-width: 390px) {
+            .falling-letters {
+                font-size: 50px;
+            }
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateX(10%);
+                opacity: 2;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container my-5">
+        <h1 class="mb-0 my-5" style="color: rgb(16, 15, 15); text-align: center; font-size: 60px; font-weight: 500;">
+            <b>
+                <span class="falling-letters">TO DO LIST</span>
+            </b>
+        </h1>
+    </div>
+
+    <div id="firstDiv" class="container my-4" style="align-content: center;  padding: 20px;">
+        <div class="input-group">
+            <input type="text" required class="form-control" width="2px;" id="task-input" placeholder="Enter Task">
+            <button class="btn btn-success" type="button" onclick="addTask()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                    class="bi bi-file-plus" viewBox="0 0 16 16">
+                    <path
+                        d="M8.5 6a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V10a.5.5 0 0 0 1 0V8.5H10a.5.5 0 0 0 0-1H8.5z">
+                    </path>
+                    <path
+                        d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1">
+                    </path>
+                </svg>
+                Add
+            </button>
+        </div>
+    </div>
+
+    <div class="containerf" style="display: flex; align-items: center;justify-content:space-evenly; color: #15181a;">
+        <ul id="task-list" style="width: 95%;"></ul>
+    </div>
+
+    <!-- footer -->
+    <div style="text-align: center; color: #15181a;">
+        <!-- After the first div and before the second div -->
+        <hr class="my-5 mx-1" style="border: 1px solid #112a3a;">
+        <p class="mb-1">© 2024 To Do List. All rights reserved.</p>
+        <p class="mb-0">New To Do List. Developed by Vinod Kumawat .
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadTasks);
+
+        function addTask() {
+            var taskInput = document.getElementById('task-input');
+            var taskList = document.getElementById('task-list');
+
+            if (taskInput.value.trim() !== '') {
+                // Create a new task item with checkbox
+                var li = document.createElement('li');
+                li.innerHTML =
+                    '<div class="tlist"><input type="checkbox" onclick="toggleTaskCompletion(this)">' +
+                    taskInput.value +
+                    '<button class="btn btn-danger" onclick="deleteTask(this)">Delete</button></div>';
+                taskList.appendChild(li);
+
+                // Save tasks to local storage
+                saveTasks();
+
+                // Clear input field
+                taskInput.value = '';
+            }
+        }
+
+        function toggleTaskCompletion(checkbox) {
+            var li = checkbox.parentElement;
+            li.classList.toggle('completed');
+
+            // Save tasks to local storage
+            saveTasks();
+        }
+
+        function deleteTask(button) {
+            var li = button.closest('li');
+            li.remove();
+
+            // Save tasks to local storage
+            saveTasks();
+        }
+
+
+        function saveTasks() {
+            var taskList = document.getElementById('task-list');
+            var tasks = [];
+
+            // Collect tasks and their completion status from the list
+            for (var i = 0; i < taskList.children.length; i++) {
+                var taskText = taskList.children[i].innerText.replace('Delete', '').trim();
+                var isCompleted = taskList.children[i].classList.contains('completed');
+
+                // Only add non-completed tasks to the tasks array
+                if (!isCompleted) {
+                    tasks.push({ text: taskText, completed: isCompleted });
+                }
+            }
+
+            // Save tasks to local storage
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+
+        function loadTasks() {
+            var taskList = document.getElementById('task-list');
+            var tasks = localStorage.getItem('tasks');
+
+            if (tasks) {
+                tasks = JSON.parse(tasks);
+
+                // Populate the task list with checkboxes and tasks
+                for (var i = 0; i < tasks.length; i++) {
+                    var li = document.createElement('li');
+                    li.innerHTML =
+                        '<div class="tlist"><input type="checkbox" style="width:18px; height:28px;" onclick="toggleTaskCompletion(this)"' +
+                        (tasks[i].completed ? ' checked' : '') +
+                        '>' +
+                        tasks[i].text +
+                        '<button type="button" onclick="deleteTask(this)" class="btn btn-danger">Delete</button></div>';
+                    taskList.appendChild(li);
+
+                    // Apply completed class if task was completed
+                    if (tasks[i].completed) {
+                        li.classList.add('completed');
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    -->
+</body>
+
+</html>
